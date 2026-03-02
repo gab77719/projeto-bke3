@@ -32,7 +32,7 @@ model User {
 model Post {
   id    Int     @id @default(autoincrement())
   title String
-  sbtitle String
+  subtitle String?
   userId Int @map("user_id")
   user User @relation(fields: [userId], references: [id])
 
