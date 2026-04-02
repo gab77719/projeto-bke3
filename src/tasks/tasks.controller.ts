@@ -1,50 +1,59 @@
-import { Controller,
-         Get,
-         Param,
-         Query,
-         Post,
-         Put,
-         Body,
-         Delete,
-         ParseIntPipe
+import { CreateTaskDto } from 'src/tasks/dto/create.task.dto';
+import { TasksService } from './tasks.service';
+import { 
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    ParseIntPipe,
+    Post,
+    Put,
+    Query, 
+    UseInterceptors
 } from '@nestjs/common';
-import { TasksService } from './tasks.service'
-import { create } from 'domain';
-import { CreateTaskDto } from './dto/create.task.dto';
-import { UpdateTaskDto } from './dto/update.task.dto';
+import { UpdateTaskDto } from 'src/tasks/dto/update.task.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { LoggerInterceptor } from 'src/common/interceptors/logger.interceptor';
+import { BodyInterceptor } from 'src/common/interceptors/body-create-task.interceptor';
+import { HeaderInterceptor } from 'src/common/interceptors/add-header.interceptor';
+
 
 @Controller('tasks')
 export class TasksController {
-    constructor(private readonly taskService: TasksService) { }
-
+    constructor(private readonly TasksService: TasksService) {}
     @Get()
-    getTasks(@Query() params: any) {
-        console.log(params);
-        return this.taskService.listAllTasks()
+    @UseInterceptors(LoggerInterceptor)
+    @UseInterceptors(HeaderInterceptor)
+    getTasks(@Query() paginationDto :PaginationDto) {
+        console.log(paginationDto)
+        return this.TasksService.listAllTasks(paginationDto);
     }
 
-    @Get("/busca") 
-    findManyTasks(@Query() queryParam: any) {
-        return this.taskService
+    @Get('/busca')
+    findTaskByQuery(@Query() paginationDto: PaginationDto) {
+        return this.TasksService.listAllTasks(paginationDto)
     }
-    
-    @Get(":id")
-    findSingleTask(@Param('id', ParseIntPipe) id: number) {
-        return this.taskService.findOneTask(id)
+
+    @Get(':id')
+    findTaskById(@Param('id', ParseIntPipe) id: number) {
+        return this.TasksService.FindOneTask(id);
     }
 
     @Post()
+    @UseInterceptors(LoggerInterceptor)
+    @UseInterceptors(BodyInterceptor)
     createTask(@Body() createTaskDto: CreateTaskDto) {
-        return this.taskService.create(createTaskDto)
+        return this.TasksService.create(createTaskDto)
     }
 
-    @Put(":id") //Patch
-    updateTask(@Param ('id', ParseIntPipe) id: number, @Body() updateTaskDto: UpdateTaskDto) {
-        return this.taskService.update(id, updateTaskDto)
+    @Put(':id')
+    updateTask(@Param('id', ParseIntPipe) id:number, @Body() updateTaskDto: UpdateTaskDto) {
+        return this.TasksService.update(id, updateTaskDto)
     }
 
-    @Delete(":id")
-    deleteTask(@Param ('id', ParseIntPipe) id: number) {
-        return this.taskService.delete(id)
+    @Delete('id')
+    deleteTask(@Param('id', ParseIntPipe) id: number) {
+        return this.TasksService.deleteTask(id)
     }
 }
