@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateTaskDto } from 'src/tasks/dto/create.task.dto';
 import { UpdateTaskDto } from 'src/tasks/dto/update.task.dto';
-import { DatabaseService } from 'src/database/database.service';
+import { DatabaseService } from '../database/database.service';
 import { PaginationDto } from './../common/dto/pagination.dto';
 import { resolvePagination } from 'src/common/pagination/resolvePagination';
 
@@ -52,9 +52,17 @@ export class TasksService {
         data: {
           name: createTaskDto.name,
           description: createTaskDto.description,
+          userId: createTaskDto.userId,
+          completed: false,
         },
       });
-    } catch (error) {}
+      return newTask;
+    } catch (error) {
+      throw new HttpException(
+        'Erro ao criar a tarefa',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async update(id: number, updateTaskDto: UpdateTaskDto) {
