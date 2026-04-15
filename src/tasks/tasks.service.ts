@@ -36,8 +36,11 @@ export class TasksService {
       const task = this.databaseService.task.findUnique({
         where: { id },
       });
+      if (task) {
+        return task;
+      }
 
-      return task;
+      throw new NotFoundException('Tarefa nao encontrada');
     } catch (error) {
       throw new HttpException(
         'Erro ao buscar tarefa por ID',
